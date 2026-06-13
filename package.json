@@ -9,9 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@insforge/sdk": "^1.4.0",
+    "@radix-ui/react-slot": "^1.2.5",
+    "clsx": "^2.1.1",
     "next": "16.2.9",
+    "posthog-js": "^1.386.6",
+    "posthog-node": "^5.37.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
