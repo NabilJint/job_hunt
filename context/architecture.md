@@ -6,10 +6,9 @@
 | ------------------------------ | ------------------------ | ------------------------------------------------ |
 | Framework                      | Next.js 16 (App Router)  | Full stack framework                             |
 | Auth + DB + Storage + Realtime | InsForge                 | Entire backend                                   |
-| Cloud browser                  | Browserbase              | Company research — browsing company public pages |
-| AI browser control             | Stagehand                | Company page interaction and content extraction  |
+| Web page rendering             | Jina Reader              | Company research — fetch company pages as markdown |
 | Job Discovery                  | Adzuna API               | Job search and discovery                         |
-| AI model                       | OpenAI GPT-4o            | Matching, research synthesis, extraction         |
+| AI model                           | Gemini 3.5 Flash           | Matching, research synthesis, extraction         |
 | Analytics                      | PostHog                  | Event tracking and dashboard charts              |
 | PDF generation                 | @react-pdf/renderer      | Resume PDF rendering                             |
 | Styling                        | Tailwind CSS + shadcn/ui | UI components and styling                        |
@@ -96,8 +95,6 @@
 ├── lib/
 │   ├── insforge-client.ts                 → InsForge browser client instance
 │   ├── insforge-server.ts                 → InsForge server client
-│   ├── browserbase.ts                     → Browserbase session creation + management
-│   ├── stagehand.ts                       → Stagehand initialisation with Browserbase session
 │   ├── adzuna.ts                          → Adzuna API client
 │   ├── posthog-client.ts                  → PostHog browser client
 │   ├── posthog-server.ts                  → PostHog server client
@@ -162,11 +159,11 @@ API route in app/api/agent/research
         ↓
 Calls agent/research.ts
         ↓
-Single Browserbase session opens with Stagehand
+Follow Adzuna redirect → derive employer domain
         ↓
-Navigates to company homepage + sub pages
+Jina Reader fetches company homepage + /about as markdown
         ↓
-GPT-4o synthesizes dossier from extracted content
+Gemini 3.5 Flash synthesizes dossier from company content + job posting + profile
         ↓
 Dossier saved to jobs.company_research
         ↓
@@ -324,17 +321,9 @@ export const createInsforgeServer = async () => {
 
 ---
 
-## Browserbase Session Pattern
-
-```typescript
-// Company research session — single session, sequential page visits
-const session = await bb.sessions.create({
-  projectId: process.env.BROWSERBASE_PROJECT_ID!,
-  timeout: 120, // 2 minute session — visits 3-4 pages max
-});
-```
-
 ---
+
+
 
 ## Job Discovery Pattern
 
@@ -362,40 +351,22 @@ const data = await response.json();
 ## Company Research Pattern
 
 ```typescript
-// Single session — visits company homepage and sub pages sequentially
-const stagehand = new Stagehand({
-  env: "BROWSERBASE",
-  apiKey: process.env.BROWSERBASE_API_KEY!,
-  projectId: process.env.BROWSERBASE_PROJECT_ID!,
-  browserbaseSessionID: session.id,
-  modelName: "gpt-4o",
-  modelClientOptions: { apiKey: process.env.OPENAI_API_KEY! },
-});
+// Follow Adzuna redirect to get real employer domain
+const response = await fetch(source_url, { method: "HEAD", redirect: "follow" });
+const finalUrl = response.url;
 
-await stagehand.init();
-const page = stagehand.page;
+// Strip subdomain to get root domain (jobs.stripe.com → stripe.com)
+const url = new URL(finalUrl);
+const rootDomain = url.hostname.split(".").slice(-2).join(".");
+const homepageUrl = `https://${rootDomain}`;
 
-// Clean company name and construct homepage URL
-const cleanName = companyName
-  .replace(/\s*(Inc\.?|LLC|Ltd\.?|Corp\.?|Co\.?).*$/i, "")
-  .trim()
-  .toLowerCase()
-  .replace(/\s+/g, "");
+// Fetch company content via Jina Reader (returns clean markdown)
+const jinaResponse = await fetch(`https://r.jina.ai/${homepageUrl}`);
+const markdown = await jinaResponse.text();
 
-const homepageUrl = `https://www.${cleanName}.com`;
-
-// Navigate and extract — graceful fallback if page not found
-try {
-  await page.goto(homepageUrl);
-  await page.waitForLoadState("networkidle");
-  const content = await stagehand.extract({ instruction: "..." });
-} catch (error) {
-  // Log and continue — GPT-4o will synthesize from what was found
-  await logAgentError(jobId, error);
-}
-
-// Always close session when done
-await stagehand.close();
+// Gemini 3.5 Flash synthesizes dossier from company content + job + profile
+const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+const result = await model.generateContent(synthesisPrompt);
 ```
 
 ---
@@ -409,9 +380,8 @@ Rules the AI agent must never violate:
 - Server Actions never call agent functions. Agent functions are only called from API routes.
 - All InsForge server-side writes use `createInsforgeServer()` — never the browser client.
 - No hardcoded hex values or raw Tailwind color classes in components — use CSS variables from ui-tokens.md.
-- Every Stagehand action is wrapped in try/catch. Failures are logged to agent_logs, never thrown to crash the run.
-- Company research always returns a dossier — even if browser research fails, GPT-4o synthesizes from company name and job description alone. Never return empty.
-- Browserbase sessions are always closed with stagehand.close() when done — never leave sessions open.
+- Every Jina Reader call is wrapped in try/catch. Failures are logged, never thrown to crash the run.
+- Company research always returns a dossier — even if Jina Reader fails, Gemini synthesizes from company name and job description alone. Never return empty.
 - Always scope InsForge queries to the current user_id — never query without a user filter.
 - Adzuna API always includes category=it-jobs — never search without this filter.
 - jobs.source is always 'search' or 'url' — never any other value.

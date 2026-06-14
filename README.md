@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobPilot
+
+![JobPilot Logo](/logo.png)
+
+AI-powered job hunting assistant that discovers relevant tech jobs, scores them against your profile, researches each company, and tracks everything on a dashboard.
+
+## Features
+
+- **Smart Job Discovery** — searches Adzuna for tech roles matching your criteria
+- **AI Match Scoring** — Gemini 3.5 Flash scores each job 0–100 against your actual skills and experience
+- **Company Research** — automatically browses company websites via Jina Reader and builds a structured dossier (tech stack, culture, interview prep, talking points)
+- **Profile Management** — upload your resume, auto-fill profile fields via AI extraction, or generate a polished PDF resume from your profile
+- **Dashboard** — stats, recent activity, and analytics charts powered by PostHog
+- **OAuth Authentication** — sign in with Google or GitHub via InsForge
+
+## Tech Stack
+
+| Layer            | Tool                             |
+| ---------------- | -------------------------------- |
+| Framework        | Next.js 16 (App Router)          |
+| Backend          | InsForge (DB, Auth, Storage)     |
+| AI               | Gemini 3.5 Flash                 |
+| Job Discovery    | Adzuna API                       |
+| Analytics        | PostHog                          |
+| PDF Generation   | @react-pdf/renderer              |
+| Styling          | Tailwind CSS v4 + shadcn/ui      |
+| Language         | TypeScript (strict)              |
+
+## Prerequisites
+
+- Node.js 20+
+- An InsForge project with the schema imported
+- Adzuna API credentials (free tier available)
+- Google AI API key for Gemini 3.5 Flash
+- PostHog project (optional — charts work without it)
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+| Variable                        | Required | Description                    |
+| ------------------------------- | -------- | ------------------------------ |
+| `NEXT_PUBLIC_INSFORGE_URL`      | Yes      | Your InsForge backend URL      |
+| `NEXT_PUBLIC_INSFORGE_ANON_KEY` | Yes      | InsForge anon key              |
+| `INSFORGE_ADMIN_KEY`            | Yes      | InsForge admin key             |
+| `ADZUNA_APP_ID`                 | Yes      | Adzuna API application ID      |
+| `ADZUNA_APP_KEY`                | Yes      | Adzuna API key                 |
+| `GOOGLE_API_KEY`                | Yes      | Google AI API key for Gemini   |
+| `NEXT_PUBLIC_POSTHOG_KEY`       | No       | PostHog project API key        |
+| `NEXT_PUBLIC_POSTHOG_HOST`      | No       | PostHog ingestion endpoint     |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Clone the repo
+git clone <repo-url>
+cd jobpilot
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env.local
+# Edit .env.local with your credentials
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command          | Description                  |
+| ---------------- | ---------------------------- |
+| `npm run dev`    | Start development server     |
+| `npm run build`  | Build for production         |
+| `npm run start`  | Start production server      |
+| `npm run lint`   | Run ESLint                   |
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/               Pages and API routes
+  (auth)/          Login and OAuth callback
+  dashboard/       Main dashboard page
+  profile/         Profile form and resume management
+  find-jobs/       Job search, list, and details
+  api/             Route handlers (agent, resume)
+agent/             Agent logic (Adzuna discovery, company research, matching, extraction)
+actions/           Server Actions (profile save, job updates)
+components/        UI components (dashboard, profile, find-jobs, job-details, layout)
+lib/               Third-party clients (InsForge, PostHog, Adzuna) and utilities
+types/             Shared TypeScript types
+context/           Project documentation (architecture, standards, build plan)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Pages** (`app/`) handle routing and data fetching — no business logic
+- **Agents** (`agent/`) contain all AI and API orchestration — no React
+- **Server Actions** (`actions/`) handle UI-triggered mutations
+- **Components** (`components/`) are pure UI — no data fetching, no direct DB calls
+- **API routes** (`app/api/`) bridge the UI to agent operations
 
-## Deploy on Vercel
+Data flows: User interaction → Server Action or API route → InsForge DB → page revalidation.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The frontend deploys to any Node.js platform (Vercel, Railway, etc.). The backend runs on InsForge.
+
+```bash
+npm run build
+```
+
+Set all environment variables from `.env.local` in your deployment platform.

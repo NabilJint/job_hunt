@@ -1,35 +1,47 @@
-# Memory — Database Schema + PostHog login event
+# Memory — Feature 17: Analytics Charts
 
-Last updated: 2026-06-13
+Last updated: 2026-06-14
 
 ## What was built
 
-- `app/(auth)/callback/page.tsx` — added `posthog.capture("login", { userId })` after identify
-- `context/code-standards.md` — added `login` event to the approved events list (now 5 total)
-- `db/schema.sql` — idempotent SQL script with `profiles`, `agent_runs`, `jobs`, `agent_logs` tables, `updated_at` trigger on profiles, and 16 RLS policies (SELECT/INSERT/UPDATE/DELETE per table) scoped to `auth.uid()`
-- InsForge CLI: executed schema via `insforge db import db/schema.sql`
-- InsForge CLI: created `resumes` storage bucket (`--private`) and applied RLS policies on `storage.objects` restricting access to `resumes/{auth.uid()}/`
-- `context/progress-tracker.md` — Feature 04 marked complete, added build notes
+### Feature 17 — Analytics Charts — Real Data
+
+- **`app/dashboard/page.tsx`** — `getDashboardData()` fetches all jobs in one query and computes stats + three chart datasets: jobs-over-time (grouped by day), company-research-activity (grouped by day, filtered to non-empty research), match-score-distribution (5 bins). Single DB query powers everything.
+- **`components/dashboard/CompanyResearchChart.tsx`** — Accepts `data` prop instead of mock data. Shows "No data yet" empty state.
+- **`components/dashboard/JobsOverTimeChart.tsx`** — Accepts `data` prop instead of mock data. Shows "No data yet" empty state.
+- **`components/dashboard/MatchScoreChart.tsx`** — Accepts `data` prop instead of mock data. Shows "No data yet" empty state.
+
+### Context files updated
+
+- `context/progress-tracker.md` — Feature 17 marked complete. All phases done.
+- `context/code-standards.md` — No new env vars needed (charts use DB, not PostHog API).
+
+### Deleted
+
+- `lib/posthog-query.ts` — Created and then removed after switching to DB-based approach.
 
 ## Decisions made
 
-- Storage RLS uses `storage.foldername(key)` to extract user_id from `resumes/{user_id}/` paths
-- Used `insforge db import` (file-based) rather than `insforge db query` for the full schema — enables version control of `db/schema.sql`
-- `ON DELETE CASCADE` on all foreign keys to prevent orphaned data when profiles are deleted
-- `login` event approved and added to the canonical list — will fire on every successful OAuth callback
+- **Charts use DB, not PostHog Query API** — `jobs` table already has `found_at`, `match_score`, `company_research`. No new env vars or API surface needed. Consistent with Features 15-16.
+- **Chart components accept `data` props** — same pattern as StatsBar and RecentActivity. Server component computes data, passes down to client-side recharts.
+- **Raw data display** — no zero-filling, no fixed date windows, no account creation tracking. Just group jobs by date and display.
+- **Single query for all dashboard data** — one `SELECT match_score, company_research, found_at` for stats + charts. Avoids N+1.
+
+## Problems solved
+
+- **InsForge SDK Promise.all destructuring** — `const [result] = await Promise.all([...])` returns the full SDK response object `{ data, error }`, not the array. Must use `result.data` or destructure individually.
+- **Date bucketing for AreaChart** — non-contiguous dates cause invisible line in recharts. Tried zero-filling approaches but settled on raw data display (user preference).
 
 ## Current state
 
-- Feature 04 (Database Schema) complete — all 4 tables with RLS exist in InsForge
-- `resumes` bucket is private with per-user folder RLS
-- `login` PostHog event fires on OAuth callback
-- Build compiles cleanly
-- `progress-tracker.md` updated
+- Features 1-17 complete. All phases done.
+- Dashboard shows real data: StatsBar, RecentActivity, JobsOverTimeChart, CompanyResearchChart, MatchScoreChart.
+- Zero TypeScript errors.
 
 ## Next session starts with
 
-- Feature 05: Profile Page — Full UI. Build the profile form page, resume upload component, and extraction/generation API routes.
+- No pending features — all 17 features complete. Consider what's next: production deployment, testing, or new features.
 
 ## Open questions
 
-- None
+- None.

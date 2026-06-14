@@ -163,3 +163,322 @@ user email: text-sm text-text-secondary
 sign out:   text-sm text-text-secondary hover:text-text-primary transition-colors
 content:    text-text-secondary (centered placeholder)
 ```
+
+### Input
+
+File: `components/ui/input.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-border` |
+| Border radius    | `rounded-md` |
+| Text — primary   | `text-text-primary text-sm` |
+| Text — muted     | `placeholder:text-text-muted` |
+| Spacing          | `px-3 py-2` |
+| Hover/Focus      | `focus-visible:ring-1 focus-visible:ring-accent` |
+
+**Pattern notes:**
+Standard text input. Follows shadcn-style ring focus.
+
+### Textarea
+
+File: `components/ui/textarea.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-border` |
+| Border radius    | `rounded-md` |
+| Text — primary   | `text-text-primary text-sm` |
+| Text — muted     | `placeholder:text-text-muted` |
+| Spacing          | `px-3 py-2 min-h-[80px]` |
+| Hover/Focus      | `focus-visible:ring-1 focus-visible:ring-accent` |
+
+**Pattern notes:**
+Matches `Input` exactly, with `min-h-[80px]`.
+
+### Select
+
+File: `components/ui/select.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-border` |
+| Border radius    | `rounded-md` |
+| Text — primary   | `text-text-primary text-sm` |
+| Spacing          | `px-3 py-2` |
+| Hover/Focus      | `focus-visible:ring-1 focus-visible:ring-accent` |
+
+**Pattern notes:**
+Native select with `appearance-none` styled to match `Input`. Custom SVG caret.
+
+### Checkbox
+
+File: `components/ui/checkbox.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `checked:bg-accent` |
+| Border           | `border border-accent checked:border-accent` |
+| Border radius    | `rounded-sm` |
+| Spacing          | `h-4 w-4 shrink-0` |
+| Hover/Focus      | `focus-visible:ring-2 focus-visible:ring-accent` |
+
+**Pattern notes:**
+Custom styling using CSS pseudo-elements to mimic shadcn/Radix checkbox natively.
+
+### CompletionIndicator
+
+File: `components/profile/CompletionIndicator.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-error/20` |
+| Border radius    | `rounded-2xl` |
+| Text — primary   | `text-text-primary text-base font-semibold` |
+| Text — secondary | `text-text-secondary text-sm` |
+| Spacing          | `p-6 gap-4` |
+| Accent usage     | `text-error` for icon, tags `bg-error/10 text-error` |
+
+**Pattern notes:**
+Card designed to grab attention. Uses a soft error background layer (`bg-error/5`) absolute positioned inside the card.
+
+### ResumeUpload
+
+File: `components/profile/ResumeUpload.tsx`
+Last updated: 2026-06-14
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-border` |
+| Border radius    | `rounded-2xl` |
+| Text — primary   | `text-text-primary text-base font-semibold` |
+| Text — secondary | `text-text-secondary text-sm` |
+| Spacing          | `p-6 gap-6` |
+| Drop area        | `bg-surface-secondary/50 border-dashed border-border-muted p-8 rounded-xl` |
+| Button row       | `flex items-center gap-2 mt-2` (after upload success) |
+| Bottom row       | `flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2` |
+
+**Pattern notes:**
+Uses standard `rounded-2xl` profile section card container. After upload, action buttons use `Button size="sm"` with default variant (primary) and outline variant side by side. Bottom row (Generate Resume) uses responsive flex with gap.
+
+### ProfileForm
+
+File: `components/profile/ProfileForm.tsx`
+Last updated: 2026-06-13
+
+| Property         | Class           |
+| ---------------- | --------------- |
+| Background       | `bg-surface` |
+| Border           | `border border-border` |
+| Border radius    | `rounded-2xl` |
+| Text — primary   | `text-text-primary font-semibold text-sm` (section title) |
+| Text — secondary | `text-text-secondary text-xs font-medium uppercase tracking-wider` (label) |
+| Spacing          | `p-6 gap-10` |
+
+**Pattern notes:**
+Primary data entry card. Input labels use the specific uppercase tracking style for cleanliness. Inner section containers (like Work Experience) use `border border-border rounded-xl p-6 bg-surface`.
+
+### SearchControls — `components/find-jobs/SearchControls.tsx`
+
+```
+usage:      <SearchControls onSearch={fn} isSearching={bool} searchResult={obj} error={str} />
+structure:  bg-surface border border-border rounded-2xl p-6 shadow-[...]
+labels:     text-text-secondary text-xs font-medium uppercase tracking-wider
+inputs:     Standard Input with Search icon (lucide) as prefix
+button:     bg-accent text-accent-foreground hover:bg-accent-dark rounded-md px-6 py-2 text-sm font-medium
+success:    bg-success-lightest border border-success/20 rounded-lg px-4 py-3
+            text-success-dark text-sm font-medium with Sparkles icon
+error:      bg-error/10 border border-error/20 rounded-lg px-4 py-3
+            text-error text-sm font-medium
+```
+
+### JobFilters — `components/find-jobs/JobFilters.tsx`
+
+```
+usage:      <JobFilters filterText={} onFilterTextChange={fn} matchFilter={} onMatchFilterChange={fn} sortBy={} onSortByChange={fn} />
+structure:  flex flex-col sm:flex-row items-start sm:items-center gap-3
+text input: Standard input with Search icon prefix, w-full flex-1
+selects:    appearance-none bg-surface border border-border rounded-md px-3 py-2 pr-8 text-sm
+            with ChevronDown icon suffix
+```
+
+### JobsTable — `components/find-jobs/JobsTable.tsx`
+
+```
+usage:      <JobsTable jobs={Job[]} />
+empty:      p-12 flex flex-col items-center justify-center gap-4
+            Search icon (w-10 h-10 text-text-muted)
+            text-text-muted text-sm text-center
+structure:  bg-surface border border-border rounded-2xl shadow-[...] overflow-hidden
+table:      w-full with thead border-b border-border
+headers:    text-text-secondary text-xs font-medium uppercase tracking-wider px-6 py-3
+rows:       border-b border-border last:border-b-0 hover:bg-surface-secondary transition-colors
+company:    flex items-center gap-3 with Building2 icon in w-9 h-9 bg-surface-secondary border border-border rounded-lg
+score bar:  w-24 h-1 bg-border-light rounded-full overflow-hidden
+            fill: bg-success (80+), bg-info (60-79), bg-warning (<60)
+salary:     text-sm text-text-secondary
+date:       text-sm text-text-muted
+```
+
+### JobsPagination — `components/find-jobs/JobsPagination.tsx`
+
+```
+usage:      <JobsPagination currentPage={} totalPages={} totalResults={} pageSize={} onPageChange={fn} />
+structure:  flex items-center justify-between
+info:       text-sm text-text-secondary with bold spans for numbers
+page btns:  flex items-center gap-1
+active:     w-8 h-8 bg-accent text-accent-foreground rounded-md
+inactive:   w-8 h-8 text-text-secondary border border-border bg-surface hover:bg-surface-secondary rounded-md
+prev/next:  px-3 py-1.5 text-sm font-medium text-text-secondary border border-border rounded-md bg-surface
+ellipsis:   px-2 py-1.5 text-sm text-text-muted
+```
+
+### JobInfo — `components/job-details/JobInfo.tsx`
+
+```
+usage:      <JobInfo job={jobRow} />
+card:       bg-surface border border-border rounded-2xl shadow-[...] p-6
+logo:       w-12 h-12 bg-surface-secondary border border-border rounded-xl
+title:      text-xl font-semibold text-text-primary
+company:    text-sm text-text-secondary
+score:      inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+            score >= 90: bg-success-lightest text-success
+            score >= 70: bg-success-light text-success
+            score >= 50: bg-warning/10 text-warning
+            < 50:        bg-surface-secondary text-text-muted
+view btn:   bg-accent text-accent-foreground rounded-md px-4 py-2 text-sm
+info grid:  grid grid-cols-2 sm:grid-cols-4 gap-4
+info card:  bg-surface-secondary rounded-xl px-4 py-3
+info label: text-xs text-text-muted font-medium
+info value: text-sm font-medium text-text-primary
+```
+
+### MatchScore — `components/job-details/MatchScore.tsx`
+
+```
+usage:      <MatchScore job={jobRow} />
+card:       bg-surface border border-border rounded-2xl shadow-[...] p-6
+heading:    text-base font-semibold text-text-primary
+score bar:  h-2 bg-border-light rounded-full
+            fill >= 80: bg-success, >= 60: bg-info, < 60: bg-warning
+percent:    text-lg font-semibold text-text-primary tabular-nums
+label:      text-sm font-medium text-text-secondary
+reason:     text-sm text-text-primary leading-relaxed
+skill tag:  inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+matched:    bg-success-lightest text-success-foreground
+missing:    bg-accent-muted text-accent
+```
+
+### JobDescription — `components/job-details/JobDescription.tsx`
+
+```
+usage:      <JobDescription job={jobRow} />
+card:       bg-surface border border-border rounded-2xl shadow-[...] p-6
+heading:    text-base font-semibold text-text-primary
+subhead:    text-sm font-semibold text-text-primary
+body:       text-sm text-text-primary leading-relaxed
+empty:      text-sm text-text-muted
+bullet:     items-start gap-2, dot w-1.5 h-1.5 rounded-full bg-text-muted
+```
+
+### CompanyResearch — `components/job-details/CompanyResearch.tsx`
+
+```
+usage:      <CompanyResearch jobId={str} companyResearch={obj|null} />
+card:       bg-surface border border-border rounded-2xl shadow-[...] p-6
+### Empty state
+icon wrap:  w-12 h-12 bg-accent-muted rounded-xl
+icon:       w-6 h-6 text-accent
+heading:    text-base font-semibold text-text-primary
+desc:       text-sm text-text-muted
+btn:        bg-accent text-accent-foreground rounded-md px-4 py-2 text-sm
+            disabled:opacity-50 disabled:cursor-not-allowed
+### Dossier view
+subhead:    text-sm font-semibold text-text-primary
+overview:   text-sm text-text-primary leading-relaxed
+tech tag:   bg-surface-secondary text-text-primary border border-border rounded-full
+culture:    dot w-1.5 h-1.5 rounded-full bg-accent
+your edge:  dot w-1.5 h-1.5 rounded-full bg-success
+gaps:       dot w-1.5 h-1.5 rounded-full bg-warning
+questions:  dot w-1.5 h-1.5 rounded-full bg-info
+prep:       dot w-1.5 h-1.5 rounded-full bg-accent
+sources:    text-xs text-text-muted
+```
+
+### JobActions — `components/job-details/JobActions.tsx`
+
+```
+usage:      <JobActions externalApplyUrl={str|null} />
+container:  flex justify-center
+btn:        bg-accent text-accent-foreground rounded-md px-8 py-3 text-base
+            inline-flex items-center gap-2
+```
+
+### StatsBar — `components/dashboard/StatsBar.tsx`
+
+```
+usage:      <StatsBar totalJobs={num} avgMatchRate={num} companiesResearched={num} jobsThisWeek={num} />
+structure:  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4
+card:       bg-surface border border-border rounded-2xl p-6
+            shadow-[0px_1px_3px_rgba(0,0,0,0.1),0px_1px_2px_-1px_rgba(0,0,0,0.1)]
+label:      text-text-secondary text-[14px] font-medium leading-[20px]
+value:      text-text-primary text-[30px] font-semibold leading-[36px] tabular-nums
+trend:      inline-block px-2 py-0.5 text-success-darker text-[12px] font-medium
+            bg-success-lightest rounded
+subtitle:   text-text-muted text-[12px] font-normal leading-[16px]
+```
+
+### RecentActivity — `components/dashboard/RecentActivity.tsx`
+
+```
+usage:      <RecentActivity activities={ActivityItem[]} />
+structure:  bg-surface border border-border rounded-2xl p-6 h-full
+heading:    text-text-primary text-[16px] font-semibold leading-[24px]
+item:       flex items-start gap-3
+dot outer:  w-4 h-4 rounded-full (green: bg-success-light, blue: bg-info-light)
+dot inner:  w-2 h-2 rounded-full (green: bg-success-alt, blue: bg-info)
+text:       text-text-primary text-[14px] font-medium leading-[20px]
+timestamp:  text-text-muted text-[12px] font-normal leading-[16px]
+empty:      text-text-muted text-[14px]
+```
+
+### CompanyResearchChart — `components/dashboard/CompanyResearchChart.tsx`
+
+```
+usage:      <CompanyResearchChart />
+structure:  bg-surface border border-border rounded-2xl p-6 h-full
+chart:      recharts BarChart, bar fill #61A8FF (info), radius [4,4,0,0]
+grid:       strokeDasharray 3 3, stroke #E7EAF3, vertical false
+axis:       axisLine false, tickLine false, tick fontSize 12 fill #9CA3AF
+```
+
+### JobsOverTimeChart — `components/dashboard/JobsOverTimeChart.tsx`
+
+```
+usage:      <JobsOverTimeChart />
+structure:  bg-surface border border-border rounded-2xl p-6 h-full
+chart:      recharts AreaChart, stroke #7C5CFC (accent), strokeWidth 3
+gradient:   linearGradient id "colorJobs" — accent with 0.2→0 opacity
+grid:       strokeDasharray 3 3, stroke #E7EAF3, vertical false
+axis:       axisLine false, tickLine false, tick fontSize 12 fill #9CA3AF
+```
+
+### MatchScoreChart — `components/dashboard/MatchScoreChart.tsx`
+
+```
+usage:      <MatchScoreChart />
+structure:  bg-surface border border-border rounded-2xl p-6 h-full
+chart:      recharts BarChart, bar fill #10B981 (success), radius [4,4,0,0]
+grid:       strokeDasharray 3 3, stroke #E7EAF3, vertical false
+axis:       axisLine false, tickLine false, tick fontSize 12 fill #9CA3AF
+```
