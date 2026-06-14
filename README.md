@@ -1,6 +1,6 @@
 # JobPilot
 
-![JobPilot Logo](/logo.png)
+![JobPilot Logo](public/logo.png)
 
 AI-powered job hunting assistant that discovers relevant tech jobs, scores them against your profile, researches each company, and tracks everything on a dashboard.
 
